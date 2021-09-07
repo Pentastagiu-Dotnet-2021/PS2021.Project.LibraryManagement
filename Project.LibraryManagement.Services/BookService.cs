@@ -22,16 +22,8 @@ namespace Project.LibraryManagement.Services
         public async Task<IEnumerable<BookDto>> GetBooksAsync()
         {
             var books = await _bookRepository.GetBooksAsync();
-            var booksDtos = books.Select(b => new BookDto
-            {
-                Title = b.Title,
-                Author = b.Author,
-                Publisher = b.Publisher,
-                Pages = b.Pages,
-                Year = b.Year,
-                Language = b.Language,
-                //ImageUri = b.ImageUri
-            }).ToList();
+            // no need to do the mapping in both GetBooksAsync and GetByIdAsync. Create an extension method and have the mapping in one place. Or better, use Automapper package :D
+            var booksDtos = books.Select(b => b.ToBookDto()).ToList();
 
             return booksDtos;
         }
@@ -39,16 +31,7 @@ namespace Project.LibraryManagement.Services
         public async Task<IEnumerable<BookDto>> GetByIDAsync(int id)
         {
             var books = await _bookRepository.GetByIDAsync(id);
-            var booksDtos = books.Select(b => new BookDto
-            {
-                Title = b.Title,
-                Author = b.Author,
-                Publisher = b.Publisher,
-                Pages = b.Pages,
-                Year = b.Year,
-                Language = b.Language,
-                //ImageUri = b.ImageUri
-            }).ToList();
+            var booksDtos = books.Select(b => b.ToBookDto()).ToList();
 
             return booksDtos;
         }
@@ -66,6 +49,24 @@ namespace Project.LibraryManagement.Services
         public void UpdateBook(Book book)
         {
             _bookRepository.UpdateBook(book);
+        }
+    }
+    
+    // this can be moved into its own Mappings folder 
+    public static class BookMappings
+    {
+        public static Book ToBookDto(this Book b)
+        {
+            return new BookDto
+            {
+                Title = b.Title,
+                Author = b.Author,
+                Publisher = b.Publisher,
+                Pages = b.Pages,
+                Year = b.Year,
+                Language = b.Language,
+                //ImageUri = b.ImageUri
+            }
         }
     }
 }
